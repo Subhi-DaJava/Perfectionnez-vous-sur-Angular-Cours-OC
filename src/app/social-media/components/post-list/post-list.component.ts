@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {map, Observable} from "rxjs";
 import {Post} from "../../models/post.model";
+import {PostsService} from "../../sevices/posts.service";
 
 @Component({
   selector: 'app-post-list',
@@ -10,7 +11,9 @@ import {Post} from "../../models/post.model";
 })
 export class PostListComponent implements OnInit {
   posts$!: Observable<Post[]>
-  constructor(private route: ActivatedRoute) { }
+  constructor(
+    private route: ActivatedRoute,
+    private postsService: PostsService) { }
 
   ngOnInit(): void {
     // Un resolver est un outil de routing qui est appelé lorsqu'un utilisateur cherche à accéder à la route où il est placé.
@@ -23,4 +26,7 @@ export class PostListComponent implements OnInit {
     );
   }
 
+  onPostCommented (postCommented: { comment: string, postId: number }) {
+    this.postsService.addNewComment(postCommented);
+  }
 }

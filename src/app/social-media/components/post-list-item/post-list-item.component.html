@@ -1,1 +1,25 @@
-<p> {{ post.title | titlecase }} </p>
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <span>{{ post.title | titlecase }}</span>
+    </mat-card-title>
+    <mat-card-subtitle>
+      <span>{{ post.createdDate | date }}</span>
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+     <img mat-card-image *ngIf="post.imageUrl as imageUrl" [src]="imageUrl" [alt]="post.title">
+    <span class="post-content"> {{ post.content }}</span>
+  </mat-card-content>
+  <mat-card-actions>
+    <!--
+  * Comment faire pour rendre CommentsComponent réutilisable ?
+  * Comment permettre au component parent – dans ce cas, PostListItemComponent – de réagir aux clics du bouton d'envoi ?
+  * Le nom newCommentByUser vient du nom du @Output dans CommentsComponent,
+  * et la syntaxe $event permet de capter le contenu d'un événement. Dans ce cas, il s'agit du commentaire de l'utilisateur.
+   -->
+    <app-comments [comments]="post.comments" (newCommentByPostId)="onNewComment($event)"></app-comments>
+  </mat-card-actions>
+</mat-card>
+
+

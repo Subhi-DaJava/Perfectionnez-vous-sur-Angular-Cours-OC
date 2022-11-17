@@ -6,4 +6,5 @@ export class Post {
   createdDate!: string;
   content!: string;
   comments!: Comment[];
+  imageUrl?: string;
 }
