@@ -14,6 +14,8 @@ export class PostListItemComponent implements OnInit {
   // Un EventEmitter doté du décorateur @Output devient "écoutable" depuis le component parent avec l'event binding.
   @Output() postCommented = new EventEmitter<{ comment: string, postId: number }>();
 
+  fullName = {firstName: 'Will', lastName: 'Alexander'};
+
   constructor() {}
 
   ngOnInit(): void {

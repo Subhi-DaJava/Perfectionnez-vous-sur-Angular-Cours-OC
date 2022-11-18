@@ -10,7 +10,7 @@ import {PostsService} from "../../sevices/posts.service";
   styleUrls: ['./post-list.component.scss']
 })
 export class PostListComponent implements OnInit {
-  posts$!: Observable<Post[]>
+  posts$!: Observable<Post[]>;
   constructor(
     private route: ActivatedRoute,
     private postsService: PostsService) { }
