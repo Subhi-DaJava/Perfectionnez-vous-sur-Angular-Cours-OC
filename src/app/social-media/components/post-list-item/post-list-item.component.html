@@ -1,10 +1,10 @@
 <mat-card>
   <mat-card-header>
     <mat-card-title>
-      <span>{{ post.title | titlecase }}</span>
+      <span highlight color="lightblue">{{ post.title | titlecase }}</span>
     </mat-card-title>
     <mat-card-subtitle>
-      <span style="margin-right: 10px; color: black">{{ fullName | fullName: 'fr' }}</span> <span>{{ post.createdDate | timeAgo  }}</span>
+      <span highlight style="margin-right: 10px; color: black">{{ fullName | fullName: 'fr' }}</span> <span>{{ post.createdDate | timeAgo  }}</span>
     </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>

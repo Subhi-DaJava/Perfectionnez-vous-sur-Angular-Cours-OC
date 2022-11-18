@@ -30,7 +30,7 @@ export class TimeAgoPipe implements PipeTransform{
     } else if(diff < this.timeDiffs.year) {
       return `Il y a  ${Math.floor(diff / (1000 * 60 * 60 * 24 * 30))} mois…`;
     } else {
-      return `Il y a plus de ${Math.floor( diff / (1000 * 60 * 60 * 24 * 365))} an`;
+      return `Il y a plus de ${Math.floor( diff / (1000 * 60 * 60 * 24 * 365))} an …`;
     }
   }
 }
