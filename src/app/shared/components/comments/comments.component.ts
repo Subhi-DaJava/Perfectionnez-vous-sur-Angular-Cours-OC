@@ -20,9 +20,24 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
         'z-index' : 2
       })),
       transition('default => active', [
-        animate('100ms ease-in-out')]),
+        animate('100ms ease-in-out')
+      ]),
       transition('active => default', [
-        animate('500ms ease-in-out')])
+        animate('500ms ease-in-out')
+      ]),
+    transition(':enter', [  // void => *, * => void, :leave
+        style({
+      transform: 'translateX(-100%)',
+      opacity: 0,
+      'background-color': 'rgb(201, 157, 242)'
+    }),
+      animate('250ms ease-out',
+        style({
+        transform: 'translateX(0)',
+        opacity: 1,
+        'background-color': 'white'
+        }))
+       ])
     ])
   ]
 })
@@ -69,6 +84,17 @@ export class CommentsComponent implements OnInit {
     if(this.commentControl.invalid) {
       return;
     }
+    // transformer le tableau de Comment en tableau de number avec la fonction map.
+    // Math.max prend les arguments les uns à la suite des autres (et non dans un tableau), vous utilisez l'opérateur "spread..." pour éclater le tableau d'id.
+    // Avec ce maxId, ajouter le nouveau commentaire au début du tableau comments avec la fonction "unshift".
+    const maxId = Math.max(...this.comments.map(comment => comment.id));
+    this.comments.unshift({
+      id: maxId +1,
+      comment: this.commentControl.value,
+      createdDate: new Date().toISOString(),
+      userId: 1
+    })
+
     this.newCommentByPostId.emit(this.commentControl.value);
     this.commentControl.reset();
   }
