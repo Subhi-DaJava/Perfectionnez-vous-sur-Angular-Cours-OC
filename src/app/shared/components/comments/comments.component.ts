@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { Comment } from '../../../core/models/comment.model';
 import {FormBuilder, FormControl, Validators} from "@angular/forms";
-import {animate, state, style, transition, trigger} from "@angular/animations";
+import {animate, group, query, sequence, state, style, transition, trigger} from "@angular/animations";
 // On utilise trigger pour définir un regroupement d'états et de transitions à assigner aux différents éléments.
 @Component({
   selector: 'app-comments',
@@ -26,7 +26,15 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
         animate('500ms ease-in-out')
       ]),
     transition(':enter', [  // void => *, * => void, :leave
+      // la fonction query qui permet de cibler des enfants de l'élément qui comporte le trigger:
+      // le texte est invisible dès le départ et son fade-in a lieu après l'arrivée du bloc du commentaire.
+      // query peut cibler plusieurs éléments à la fois !
+      query('.comment-text, .comment-date', [
         style({
+          opacity: 0
+        })
+      ]),
+      style({
       transform: 'translateX(-100%)',
       opacity: 0,
       'background-color': 'rgb(201, 157, 242)'
@@ -36,7 +44,30 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
         transform: 'translateX(0)',
         opacity: 1,
         'background-color': 'white'
-        }))
+        })),
+        group([
+          /*
+          * Par exemple, si vous voulez faire "flasher" la couleur de fond du commentaire (l'animer vers une couleur puis tout de suite animer son retour au blanc),
+          * et déclencher ce flash en même temps que les fade-in des textes ?*/
+          sequence([
+            animate('250ms', style({
+              'background-color': 'rgba(229,231,216,0.9)'
+            })),
+            animate('250ms', style({
+              'background-color': 'white'
+            }))
+            ]),
+          query('.comment-text', [
+            animate('250ms', style({
+              opacity: 1
+            }))
+          ]),
+          query('.comment-date', [
+            animate('500ms', style({
+              opacity: 1
+            }))
+          ])
+        ])
        ])
     ])
   ]
