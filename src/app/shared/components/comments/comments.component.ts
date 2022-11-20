@@ -1,13 +1,40 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { Comment } from '../../../core/models/comment.model';
 import {FormBuilder, FormControl, Validators} from "@angular/forms";
-
+import {animate, state, style, transition, trigger} from "@angular/animations";
+// On utilise trigger pour définir un regroupement d'états et de transitions à assigner aux différents éléments.
 @Component({
   selector: 'app-comments',
   templateUrl: './comments.component.html',
-  styleUrls: ['./comments.component.scss']
+  styleUrls: ['./comments.component.scss'],
+  animations: [
+    trigger('listItem', [
+      state('default', style({
+          transform: 'scale(1)',
+          'background-color': 'white',
+          'z-index': 1
+        })),
+      state('active', style({
+        transform: 'scale(1.05)',
+        'background-color': 'rgb(201, 157, 242)',
+        'z-index' : 2
+      })),
+      transition('default => active', [
+        animate('100ms ease-in-out')]),
+      transition('active => default', [
+        animate('500ms ease-in-out')])
+    ])
+  ]
 })
 export class CommentsComponent implements OnInit {
+  /*
+  Pour assigner un state à un trigger dans le template, vous allez utiliser l'attribute binding,
+  avec une variable côté TypeScript qui contiendra soit 'default', soit 'active'
+   */
+  // listItemAnimationState: 'default' | 'active' = 'default'; in template  [@listItem]="listItemAnimationState" for all comments
+
+  animationStates: { [key: number] : 'default' | 'active'  } = {} ; // un dictionnaire
+
   // CommentsComponent doit accepter une liste de commentaires injectée par son parent. Il lui faut donc un @Input()
   // L'attribut personnalisé avec le décorateur @Input
   @Input() comments!: Comment[];
@@ -23,6 +50,14 @@ export class CommentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.commentControl = this.formBuilder.control('', [Validators.required, Validators.minLength(10)]);
+    // Puisque cet objet (animationStates) est vide par défaut, il faut le peupler dans ngOnInit: animationStates = {
+    //     0: 'default',
+    //     1: 'default',
+    //     2: 'default'
+    // };
+    for(let index in this.comments) {
+      this.animationStates[index] = 'default';
+    }
   }
   /*
   * Comment faire pour rendre CommentsComponent réutilisable ?
@@ -37,5 +72,13 @@ export class CommentsComponent implements OnInit {
     this.newCommentByPostId.emit(this.commentControl.value);
     this.commentControl.reset();
   }
+
+  onListItemMouseEnter(index: number) {
+    this.animationStates[index] = 'active';
+  }
+  onListItemMouseLeave(index: number) {
+    this.animationStates[index] = 'default';
+  }
+
 }
 

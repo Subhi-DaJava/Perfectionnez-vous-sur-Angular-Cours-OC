@@ -3,14 +3,18 @@
     <!--Lorsque vos contrôles se trouvent dans un FormGroup, vous utilisez formControlName pour les identifier. -->
     <input type="text" matInput placeholder="Laissez un commentaire..." [formControl]="commentControl">
   </mat-form-field>
-  <button mat-icon-button color="primary" (click)="onLeaveComment()" >
+  <button mat-icon-button color="primary" (click)="onLeaveComment()">
     <mat-icon>send</mat-icon>
   </button>
 </div>
 
 <mat-list *ngIf="comments.length">
   <h2 matSubheader>Commentaires</h2>
-  <mat-list-item *ngFor="let comment of comments">
+  <mat-list-item *ngFor="let comment of comments; let i = index"
+                 [@listItem]="animationStates[i]"
+                 (mouseenter)="onListItemMouseEnter(i)"
+                 (mouseleave)="onListItemMouseLeave(i)"
+    >
     <span mat-line>{{ comment.comment }}</span>
     <span mat-line>{{ comment.createdDate | timeAgo }}</span>
   </mat-list-item>

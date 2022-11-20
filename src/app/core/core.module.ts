@@ -4,7 +4,8 @@ import { HeaderComponent } from './components/header/header.component';
 import { SharedModule } from '../shared/shared.module';
 import { RouterModule } from '@angular/router';
 import {HttpClientModule} from "@angular/common/http";
-
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+// BrowserAnimationsModule a été importé dans AppModule par Material.
 @NgModule({
   declarations: [
     HeaderComponent
@@ -13,7 +14,8 @@ import {HttpClientModule} from "@angular/common/http";
     CommonModule,
     SharedModule,
     RouterModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule,
   ],
   exports: [
     HeaderComponent
