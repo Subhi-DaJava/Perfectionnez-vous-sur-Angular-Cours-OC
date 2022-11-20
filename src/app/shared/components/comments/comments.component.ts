@@ -1,13 +1,33 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { Comment } from '../../../core/models/comment.model';
 import {FormBuilder, FormControl, Validators} from "@angular/forms";
-import {animate, group, query, sequence, state, style, transition, trigger} from "@angular/animations";
+import {
+  animate,
+  animateChild,
+  group,
+  query,
+  sequence,
+  stagger,
+  state,
+  style,
+  transition,
+  trigger
+} from "@angular/animations";
 // On utilise trigger pour définir un regroupement d'états et de transitions à assigner aux différents éléments.
 @Component({
   selector: 'app-comments',
   templateUrl: './comments.component.html',
   styleUrls: ['./comments.component.scss'],
   animations: [
+    trigger('list', [
+     transition(':enter', [
+       // sélecteur HTML, 'mat-list-item', cibler tous les enfants dotés du trigger listItem
+       query('@listItem', [
+         // La valeur 50 correspond au nombre de millisecondes entre deux déclenchements !
+         stagger(50, animateChild())])
+     ])
+    ]),
+
     trigger('listItem', [
       state('default', style({
           transform: 'scale(1)',
