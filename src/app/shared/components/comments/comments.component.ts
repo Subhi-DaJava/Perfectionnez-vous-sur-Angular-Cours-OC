@@ -6,13 +6,14 @@ import {
   animateChild,
   group,
   query,
-  sequence,
   stagger,
   state,
   style,
   transition,
-  trigger
+  trigger, useAnimation
 } from "@angular/animations";
+import {flashAnimation} from "../../animations/flash.animation";
+import {slideAndFadeAnimation} from "../../animations/slide-and-fade.animation";
 // On utilise trigger pour définir un regroupement d'états et de transitions à assigner aux différents éléments.
 @Component({
   selector: 'app-comments',
@@ -54,29 +55,22 @@ import {
           opacity: 0
         })
       ]),
-      style({
-      transform: 'translateX(-100%)',
-      opacity: 0,
-      'background-color': 'rgb(201, 157, 242)'
-    }),
-      animate('250ms ease-out',
-        style({
-        transform: 'translateX(0)',
-        opacity: 1,
-        'background-color': 'white'
-        })),
+        useAnimation(slideAndFadeAnimation, {
+          params: {
+            time: '250ms',
+            startColor: 'rgb(201, 157, 242)'
+          }
+        }),
         group([
           /*
           * Par exemple, si vous voulez faire "flasher" la couleur de fond du commentaire (l'animer vers une couleur puis tout de suite animer son retour au blanc),
           * et déclencher ce flash en même temps que les fade-in des textes ?*/
-          sequence([
-            animate('250ms', style({
-              'background-color': 'rgba(229,231,216,0.9)'
-            })),
-            animate('250ms', style({
-              'background-color': 'white'
-            }))
-            ]),
+         useAnimation(flashAnimation, {
+           params: {
+             time: '250ms',
+             flashColor : 'rgba(229,231,216,0.9)'
+           }
+         }),
           query('.comment-text', [
             animate('250ms', style({
               opacity: 1
