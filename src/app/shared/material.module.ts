@@ -19,7 +19,7 @@ import {MatRadioModule} from "@angular/material/radio";
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
-    MatRadioModule
+    MatRadioModule,
   ]
 })
 export class MaterialModule { }

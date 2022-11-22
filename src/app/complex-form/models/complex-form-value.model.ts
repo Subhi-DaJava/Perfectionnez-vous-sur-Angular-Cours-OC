@@ -1,5 +1,5 @@
 export class ComplexFormValue {
-  personnelInfo!: {
+  personalInfo!: {
     firstName: string,
     lastName: string
   };

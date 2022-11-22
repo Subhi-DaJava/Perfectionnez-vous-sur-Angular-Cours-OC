@@ -5,16 +5,14 @@ import {SharedModule} from "../shared/shared.module";
 import {ComplexFormRoutingModule} from "./complex-form-routing.module";
 import {ComplexFormService} from "./services/complex-form.service";
 
-
-
 @NgModule({
   declarations: [
     ComplexFormComponent
   ],
   imports: [
     CommonModule,
-    SharedModule,
-    ComplexFormRoutingModule
+    ComplexFormRoutingModule,
+    SharedModule
   ],
   providers: [
     ComplexFormService
