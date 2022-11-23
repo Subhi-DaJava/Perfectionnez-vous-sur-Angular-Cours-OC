@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {map, Observable, startWith} from "rxjs";
 
 @Component({
   selector: 'app-complex-form',
@@ -21,11 +22,16 @@ export class ComplexFormComponent implements OnInit {
   confirmPasswordCtrl!: FormControl;
   loginInfoForm!: FormGroup;
 
+  // <!-- Les Observables étant très puissants, vous allez vous en servir pour afficher et cacher les MatCards "Email" et "Telephone" selon la sélection de l'utilisateur.-->
+  showEmailCtrl$!: Observable<boolean>;
+  showPhoneCtrl$!: Observable<boolean>;
+
   constructor(private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
     this.initFormControls();
     this.initMainForm();
+    this.initFormObservables();
   }
 
   private initMainForm(): void {
@@ -43,6 +49,7 @@ export class ComplexFormComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
     });
+
     this.contactPreferenceCtrl = this.formBuilder.control('email');
 
     // initialiser les FormControls avant de générer le FormGroup à partir de ces FormControls
@@ -63,6 +70,22 @@ export class ComplexFormComponent implements OnInit {
       password: this.passwordCtrl,
       confirmPassword: this.confirmPasswordCtrl
     })
+  }
+  // Vos deux Observables dépendent des changements du contrôle contactPreferenceCtrl, donc générez-les à partir de ses valueChanges
+  private initFormObservables() {
+    this.showEmailCtrl$ = this.contactPreferenceCtrl.valueChanges.pipe(
+      // générer une "fausse" émission, au chargement de la page, qui correspond à la valeur initiale du champ !
+      startWith(this.contactPreferenceCtrl.value), // startWith(true)
+      map(preference => preference === 'email')
+      // map(preference => {
+      // if(preference === 'email') {return true;}
+      // else {return false;}
+      // });
+    );
+    this.showPhoneCtrl$ = this.contactPreferenceCtrl.valueChanges.pipe(
+      startWith(this.contactPreferenceCtrl.value), // startWith(true)
+      map(preference => preference === 'phone')
+    );
   }
 
   onSubmitForm() {
