@@ -1,10 +1,5 @@
-<mat-card *ngIf="messageError" style="color: crimson">
-  {{ messageError }}
-</mat-card>
-
 <mat-card [formGroup]="mainForm" class="main-form">
   <mat-card-title>Inscription</mat-card-title>
-
   <mat-card class="form-card" formGroupName="personalInfo">
     <mat-card-subtitle>Informations personnelles</mat-card-subtitle>
     <!--.form-row>(mat-form-field>mat-label+input)*2-->
@@ -12,6 +7,7 @@
       <mat-form-field appearance="fill">
         <mat-label>Prénom</mat-label>
         <input type="text" matInput formControlName="firstName">
+        <!--un MatError ne s'affiche que lorsque le FormControl associé à son MatFormField contient une erreur-->
         <mat-error>Ce champs est requis</mat-error>
       </mat-form-field>
       <mat-form-field appearance="fill">
@@ -46,6 +42,9 @@
       </mat-form-field>
     </div>
   </mat-card>
+
+  <small class="error-text" style="font-size: 1.3rem;" *ngIf="showEmailFormError$ | async">Les deux adresses ne correspondent pas !</small>
+
    <!-- Les Observables étant très puissants, vous allez vous en servir pour afficher et cacher les MatCards "Email" et "Telephone" selon la sélection de l'utilisateur.-->
   <mat-card class="form-card" *ngIf="showPhoneCtrl$ | async">
     <mat-card-subtitle>Téléphone</mat-card-subtitle>
@@ -80,6 +79,8 @@
     </div>
   </mat-card>
 
+  <small class="error-text" style="font-size: 1.1rem;" *ngIf="showPasswordFormError$ | async">Les deux mots de passe ne correspondent pas !</small>
+
   <mat-card-actions *ngIf="mainForm.valid">
     <!--feedback visuel :
     le bouton ENREGISTRER va se désactiver, les empêchant de cliquer plusieurs fois
@@ -87,4 +88,5 @@
     <button mat-flat-button color="primary" (click)="onSubmitForm()" [disabled]="loading">ENREGISTRER</button>
   </mat-card-actions>
   <mat-spinner *ngIf="loading" color="primary" mode="indeterminate"></mat-spinner>
+  <small class="error-text" style="font-size: 1.1rem;" *ngIf="messageError"> {{ messageError }}</small>
 </mat-card>

@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {map, Observable, startWith, tap} from "rxjs";
 import {ComplexFormService} from "../../services/complex-form.service";
-import {validValidator} from "../../validators/validValidator";
+import {confirmEqualValidator} from "../../validators/confirm-equal.validator";
 
 @Component({
   selector: 'app-complex-form',
@@ -13,7 +13,7 @@ export class ComplexFormComponent implements OnInit {
   // Pour montrer et cacher le spinner, ainsi que pour activer et désactiver le bouton d'enregistrement
   //  dans le template, de lier l'apparition du spinner et l'activation du bouton à son état
   loading = false;
-  messageError! : string;
+  messageError!: string;
   mainForm!: FormGroup;
   personalInfoForm!: FormGroup;
   contactPreferenceCtrl!: FormControl;
@@ -32,9 +32,13 @@ export class ComplexFormComponent implements OnInit {
   showEmailCtrl$!: Observable<boolean>;
   showPhoneCtrl$!: Observable<boolean>;
 
+  showEmailFormError$!: Observable<boolean>;
+  showPasswordFormError$!: Observable<boolean>;
+
   constructor(
     private formBuilder: FormBuilder,
-    private complexFormService: ComplexFormService) { }
+    private complexFormService: ComplexFormService) {
+  }
 
   ngOnInit(): void {
     this.initFormControls();
@@ -51,6 +55,7 @@ export class ComplexFormComponent implements OnInit {
       loginInfo: this.loginInfoForm
     });
   }
+
   // La différence principale est qu'une méthode private ne peut pas être appelée depuis le template.
   private initFormControls(): void {
     this.personalInfoForm = this.formBuilder.group({
@@ -64,9 +69,14 @@ export class ComplexFormComponent implements OnInit {
     this.emailCtrl = this.formBuilder.control('');
     this.confirmEmailCtrl = this.formBuilder.control('');
     this.emailForm = this.formBuilder.group({
-      email: this.emailCtrl,
-      confirm: this.confirmEmailCtrl
-    });
+        email: this.emailCtrl,
+        confirm: this.confirmEmailCtrl
+      },
+      {
+        validators: [confirmEqualValidator('email', 'confirm')],
+        // changer le rythme auquel la validation de ce FormGroup est évaluée
+        updateOn: 'blur'
+      });
 
     this.phoneCtrl = this.formBuilder.control('');
 
@@ -77,8 +87,15 @@ export class ComplexFormComponent implements OnInit {
       username: ['', Validators.required],
       password: this.passwordCtrl,
       confirmPassword: this.confirmPasswordCtrl
-    })
+    }, {
+      //Un Validator peut s'appliquer à un FormGroup en passant un objet de configuration comme deuxième argument à FormBuilder.group.
+      validators: [confirmEqualValidator('password', 'confirmPassword')],
+      // changer le rythme auquel la validation de ce FormGroup est évaluée
+      // updateOn: 'blur' à cet objet de configuration pour que la validation ne s'évalue que lors du blur d'un contrôle.
+      updateOn: 'blur'
+    });
   }
+
   // Vos deux Observables dépendent des changements du contrôle contactPreferenceCtrl, donc générez-les à partir de ses valueChanges
   private initFormObservables() {
     this.showEmailCtrl$ = this.contactPreferenceCtrl.valueChanges.pipe(
@@ -101,19 +118,31 @@ export class ComplexFormComponent implements OnInit {
         this.setPhoneCtrlValidators(showPhoneCtrl);
       })
     );
+    // les changements d'état de validation des AbstractControls, il existe l'Observable statusChanges.
+    this.showEmailFormError$ = this.emailForm.statusChanges.pipe(
+      // évaluer l'état de validation pour showEmailError$, également vérifier que les deux champs contiennent une valeur
+      map(status => status === 'INVALID' && this.emailCtrl.value && this.confirmEmailCtrl.value)
+    );
+    // Les AbstractControls ont un Observable statusChanges qui émet leur état de validation.
+    this.showPasswordFormError$ = this.loginInfoForm.statusChanges.pipe(
+      map(status =>
+        status === 'INVALID' &&
+        this.passwordCtrl.value &&
+        this.confirmPasswordCtrl.value &&
+        // confirmEqual est la clé d'erreur dans Validator
+        this.loginInfoForm.hasError('confirmEqual'))
+    );
   }
 
   private setEmailCtrlValidators(showEmailCtrl: boolean) {
     if (showEmailCtrl) {
       this.emailCtrl.addValidators([
         Validators.required,
-        Validators.email,
-        validValidator()
+        Validators.email
       ]);
       this.confirmEmailCtrl.addValidators([
         Validators.required,
-        Validators.email,
-        validValidator()
+        Validators.email
       ]);
     } else {
       this.emailCtrl.clearValidators();
@@ -143,7 +172,7 @@ export class ComplexFormComponent implements OnInit {
       tap(isSaved => {
         // lorsque le serveur répond, dans tous les cas il faut passer loading à false
         this.loading = false;
-        if(isSaved) {
+        if (isSaved) {
           // user saved successfully
           this.restForm();
         } else {
@@ -167,9 +196,9 @@ export class ComplexFormComponent implements OnInit {
 
 // Une méthode qui permet de générer un texte d'erreur à partir de l'erreur spécifique du FormControl.
   // AbstractControl permet de passer des FormControls ou des FormGroups à cette méthode
-  showFormCtrlErrorText (ctrl: AbstractControl) {
+  showFormCtrlErrorText(ctrl: AbstractControl) {
     // la méthode hasError du FormControl pour vérifier si le contrôle a généré une erreur précise
-    if (ctrl.hasError ('required')) {
+    if (ctrl.hasError('required')) {
       return 'Ce champs est requis!';
     } else if (ctrl.hasError('email')) {
       return 'Merci d\'entrer une adresse email valide !';
@@ -178,12 +207,7 @@ export class ComplexFormComponent implements OnInit {
       return 'Ce numéro de téléphone ne contient pas assez de chiffres !';
     } else if (ctrl.hasError('maxlength')) {
       return 'Ce numéro de téléphone ne contient pas trop de chiffres !';
-    }
-    // Le nom passé à hasError correspond bien à la clé de l'erreur retournée par le Validator.
-    else if (ctrl.hasError('validValidator')) {
-      return 'Cette address email ne contient pas le mot VALID !';
-    }
-    else {
+    } else {
       return 'Ce champs contient une error !';
     }
   }
