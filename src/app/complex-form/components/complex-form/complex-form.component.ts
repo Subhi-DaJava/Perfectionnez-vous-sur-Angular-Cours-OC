@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {map, Observable, startWith, tap} from "rxjs";
+import {ComplexFormService} from "../../services/complex-form.service";
 
 @Component({
   selector: 'app-complex-form',
@@ -8,6 +9,10 @@ import {map, Observable, startWith, tap} from "rxjs";
   styleUrls: ['./complex-form.component.scss']
 })
 export class ComplexFormComponent implements OnInit {
+  // Pour montrer et cacher le spinner, ainsi que pour activer et désactiver le bouton d'enregistrement
+  //  dans le template, de lier l'apparition du spinner et l'activation du bouton à son état
+  loading = false;
+  messageError! : string;
   mainForm!: FormGroup;
   personalInfoForm!: FormGroup;
   contactPreferenceCtrl!: FormControl;
@@ -26,7 +31,9 @@ export class ComplexFormComponent implements OnInit {
   showEmailCtrl$!: Observable<boolean>;
   showPhoneCtrl$!: Observable<boolean>;
 
-  constructor(private formBuilder: FormBuilder) { }
+  constructor(
+    private formBuilder: FormBuilder,
+    private complexFormService: ComplexFormService) { }
 
   ngOnInit(): void {
     this.initFormControls();
@@ -128,6 +135,49 @@ export class ComplexFormComponent implements OnInit {
   }
 
   onSubmitForm() {
-    console.log(this.mainForm.value);
+    this.loading = true;
+    this.complexFormService.saveUserInfo(this.mainForm.value).pipe(
+      tap(isSaved => {
+        // lorsque le serveur répond, dans tous les cas il faut passer loading à false
+        this.loading = false;
+        if(isSaved) {
+          // user saved successfully
+          this.restForm();
+        } else {
+          // user not saved: error case
+          this.messageError = "Une error s'est produit pendant l'enregistrement";
+          console.error('Échec de l\'enregistrement !');
+        }
+      })
+    ).subscribe();
+    //console.log(this.mainForm.value);
+  }
+
+  private restForm() {
+    this.mainForm.reset();
+    // retrouver le vrai état initial du formulaire
+    // La méthode patchValue, par défaut,
+    // fait émettre l'Observable valueChanges du FormControl – la MatCard s'affichera,
+    // donc et la validation sera ajustée correctement.
+    this.contactPreferenceCtrl.patchValue('email'); // 'email', { emitEvent: false }
+  }
+
+// Une méthode qui permet de générer un texte d'erreur à partir de l'erreur spécifique du FormControl.
+  // AbstractControl permet de passer des FormControls ou des FormGroups à cette méthode
+  showFormCtrlErrorText (ctrl: AbstractControl) {
+    // la méthode hasError du FormControl pour vérifier si le contrôle a généré une erreur précise
+    if (ctrl.hasError ('required')) {
+      return 'Ce champs est requis!';
+    } else if (ctrl.hasError('email')) {
+      return 'Merci d\'entrer une adresse email valide !';
+      // Attention au piège ! Les codes d'erreur pour Validators.minLength et Validators.maxLength sont 'minlength' et 'maxlength' avec des l minuscules !
+    } else if (ctrl.hasError('minlength')) {
+      return 'Ce numéro de téléphone ne contient pas assez de chiffres !';
+    } else if (ctrl.hasError('maxlength')) {
+      return 'Ce numéro de téléphone ne contient pas trop de chiffres !';
+    }
+    else {
+      return 'Ce champs contient une error !';
+    }
   }
 }
