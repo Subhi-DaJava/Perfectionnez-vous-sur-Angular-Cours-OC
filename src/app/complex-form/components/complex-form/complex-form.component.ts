@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
-import {map, Observable, startWith} from "rxjs";
+import {map, Observable, startWith, tap} from "rxjs";
 
 @Component({
   selector: 'app-complex-form',
@@ -76,16 +76,55 @@ export class ComplexFormComponent implements OnInit {
     this.showEmailCtrl$ = this.contactPreferenceCtrl.valueChanges.pipe(
       // générer une "fausse" émission, au chargement de la page, qui correspond à la valeur initiale du champ !
       startWith(this.contactPreferenceCtrl.value), // startWith(true)
-      map(preference => preference === 'email')
+      map(preference => preference === 'email'),
       // map(preference => {
       // if(preference === 'email') {return true;}
       // else {return false;}
       // });
+      tap(showEmailCtrl => {
+        this.setEmailCtrlValidators(showEmailCtrl);
+      })
     );
     this.showPhoneCtrl$ = this.contactPreferenceCtrl.valueChanges.pipe(
       startWith(this.contactPreferenceCtrl.value), // startWith(true)
-      map(preference => preference === 'phone')
+      map(preference => preference === 'phone'),
+      // Il s'agit d'un effet secondaire, un side effect – vous réagissez aux émissions de l'Observable sans y toucher – donc il faut privilégier l'opérateur tap.
+      tap(showPhoneCtrl => {
+        this.setPhoneCtrlValidators(showPhoneCtrl);
+      })
     );
+  }
+
+  private setEmailCtrlValidators(showEmailCtrl: boolean) {
+    if (showEmailCtrl) {
+      this.emailCtrl.addValidators([
+        Validators.required,
+        Validators.email
+      ]);
+      this.confirmEmailCtrl.addValidators([
+        Validators.required,
+        Validators.email
+      ]);
+    } else {
+      this.emailCtrl.clearValidators();
+      this.confirmEmailCtrl.clearValidators();
+    }
+    this.emailCtrl.updateValueAndValidity();
+    this.confirmEmailCtrl.updateValueAndValidity();
+  }
+
+  // utiliser Validators.pattern pour vous assurer du format exact du numéro de téléphone avec une RegEx !
+  private setPhoneCtrlValidators(showPhoneCtrl: boolean) {
+    if (showPhoneCtrl) {
+      this.phoneCtrl.addValidators([
+        Validators.required,
+        Validators.minLength(10),
+        Validators.maxLength(10)
+      ]);
+    } else {
+      this.phoneCtrl.clearValidators();
+    }
+    this.phoneCtrl.updateValueAndValidity();
   }
 
   onSubmitForm() {

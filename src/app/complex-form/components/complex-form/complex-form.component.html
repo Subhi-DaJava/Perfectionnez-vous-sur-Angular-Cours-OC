@@ -1,5 +1,7 @@
 <mat-card [formGroup]="mainForm" class="main-form">
+
   <mat-card-title>Inscription</mat-card-title>
+
   <mat-card class="form-card" formGroupName="personalInfo">
     <mat-card-subtitle>Informations personnelles</mat-card-subtitle>
     <!--.form-row>(mat-form-field>mat-label+input)*2-->
@@ -22,17 +24,18 @@
       <mat-radio-button value="phone">Téléphone</mat-radio-button>
     </mat-radio-group>
   </mat-card>
+
   <!-- Les Observables étant très puissants, vous allez vous en servir pour afficher et cacher les MatCards "Email" et "Telephone" selon la sélection de l'utilisateur.-->
   <mat-card class="form-card" [formGroup]="emailForm" *ngIf="showEmailCtrl$ | async">
     <mat-card-subtitle>Email</mat-card-subtitle>
     <div class="form-row">
       <mat-form-field appearance="fill">
-        <mat-label>Email</mat-label>
-        <input type="email" matInput formControlName="email">
+        <mat-label>Adresse mail</mat-label>
+        <input type="text" matInput formControlName="email">
       </mat-form-field>
       <mat-form-field appearance="fill">
-        <mat-label>Confirmer votre address email</mat-label>
-        <input type="email" matInput formControlName="confirm">
+        <mat-label>Confirmer votre adresse mail</mat-label>
+        <input type="text" matInput formControlName="confirm">
       </mat-form-field>
     </div>
   </mat-card>
@@ -40,17 +43,20 @@
   <mat-card class="form-card" *ngIf="showPhoneCtrl$ | async">
     <mat-card-subtitle>Téléphone</mat-card-subtitle>
     <mat-form-field appearance="fill">
-      <mat-label>Numéro de Téléphone</mat-label>
-      <input type="text" matInput [formControl]="phoneCtrl"> <!-- formControlName="phone" -->
+      <mat-label>Numéro de téléphone</mat-label>
+      <input type="text" matInput [formControl]="phoneCtrl">
     </mat-form-field>
   </mat-card>
 
   <mat-card class="form-card" [formGroup]="loginInfoForm">
+
     <mat-card-subtitle>Informations de connexion</mat-card-subtitle>
+
     <mat-form-field appearance="fill">
       <mat-label>Nom d'utilisateur</mat-label>
       <input type="text" matInput formControlName="username">
     </mat-form-field>
+
     <div class="form-row">
       <mat-form-field appearance="fill">
         <mat-label>Mot de passe</mat-label>
