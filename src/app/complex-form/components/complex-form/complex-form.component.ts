@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {map, Observable, startWith, tap} from "rxjs";
 import {ComplexFormService} from "../../services/complex-form.service";
+import {validValidator} from "../../validators/validValidator";
 
 @Component({
   selector: 'app-complex-form',
@@ -106,11 +107,13 @@ export class ComplexFormComponent implements OnInit {
     if (showEmailCtrl) {
       this.emailCtrl.addValidators([
         Validators.required,
-        Validators.email
+        Validators.email,
+        validValidator()
       ]);
       this.confirmEmailCtrl.addValidators([
         Validators.required,
-        Validators.email
+        Validators.email,
+        validValidator()
       ]);
     } else {
       this.emailCtrl.clearValidators();
@@ -175,6 +178,10 @@ export class ComplexFormComponent implements OnInit {
       return 'Ce numéro de téléphone ne contient pas assez de chiffres !';
     } else if (ctrl.hasError('maxlength')) {
       return 'Ce numéro de téléphone ne contient pas trop de chiffres !';
+    }
+    // Le nom passé à hasError correspond bien à la clé de l'erreur retournée par le Validator.
+    else if (ctrl.hasError('validValidator')) {
+      return 'Cette address email ne contient pas le mot VALID !';
     }
     else {
       return 'Ce champs contient une error !';
