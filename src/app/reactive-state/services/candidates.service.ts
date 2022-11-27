@@ -14,7 +14,8 @@ export class CandidatesService {
   // facilite largement l'implémentation de nouvelles fonctionnalités,
   // car les components affichent simplement ce que le service leur envoie.
   // _loading$ – qui émettra true ou false selon qu'un chargement est en cours ou non ;
-  // un pattern private + getter  :
+  // un pattern private + getter :
+  // _loading$ – qui émettra true ou false selon qu'un chargement est en cours ou non ; un pattern private + getter  :
   private _loading$ = new BehaviorSubject<boolean>(false);
   // Il s'agit d'une approche permettant une lisibilité de code différente que par l'utilisation d'une méthode getLoading()
   get loading$(): Observable<boolean> {
@@ -58,11 +59,10 @@ export class CandidatesService {
 
   getCandidateById(id: number): Observable<Candidate> {
     /*
-    * Le tout fonctionne ensemble car tout dépend toujours de ces mêmes BehaviorSubjects,
+    * Le tout fonctionne ensemble, car tout dépend toujours de ces mêmes BehaviorSubjects,
     * donc le spinner s'affiche correctement, et dès que les candidats sont reçus par l'application,
     * l'Observable émet et le candidat s'affiche.
     * */
-
     // si on arrive directement sur SingleCandidateComponent (et donc lastCandidatesLoaded = 0),
     // on demandera le chargement des utilisateurs.
     if(!this.lastCandidatesLoaded) {

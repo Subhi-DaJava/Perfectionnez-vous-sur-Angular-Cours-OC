@@ -17,7 +17,8 @@ export class SingleCandidateComponent implements OnInit {
   constructor(
     private candidatesService: CandidatesService,
     private route: ActivatedRoute,
-    private router: Router) { }
+    private router: Router) {
+  }
 
   ngOnInit(): void {
     this.initObservables();
@@ -27,20 +28,18 @@ export class SingleCandidateComponent implements OnInit {
     this.loading$ = this.candidatesService.loading$;
     this.candidate$ = this.route.params.pipe(
       // Il faut cast le paramètre en  number (avec + ),
-      // car tout paramètre de route est automatiquement une string,
+      // car tout paramètre de route est automatiquement une "string",
       // même si on sait qu'il contiendra un nombre dans ce cas.
       switchMap(params => this.candidatesService.getCandidateById(+params['id']))
     );
   }
 
-  onHire() {
+  onHire() {}
 
-  }
+  onRefuse() {}
 
-  onRefuse() {
-
-  }
   onGoBack() {
     this.router.navigateByUrl('/reactive-state/candidates').then();
   }
+
 }
