@@ -1,3 +1,5 @@
+// un module basé à 100 % sur un state management réactif !
+
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 

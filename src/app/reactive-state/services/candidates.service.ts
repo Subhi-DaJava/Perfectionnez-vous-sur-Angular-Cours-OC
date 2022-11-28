@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
-import {BehaviorSubject, delay, map, Observable, tap} from "rxjs";
+import {BehaviorSubject, delay, map, Observable, switchMap, take, tap } from "rxjs";
 import {Candidate} from "../models/candidate.model";
 import {environment} from "../../../environments/environment";
 /*
@@ -45,7 +45,7 @@ export class CandidatesService {
     }
     // Le fait que les dernières données récupérées soient réémises par le BehaviorSubject nous permet cette facilité d'implémentation,
     // tout en conservant la stratégie OnPush !
-   this.setLoadingStatus(true);
+    this.setLoadingStatus(true);
     this.http.get<Candidate[]>(`${environment.apiUrl}/candidates`).pipe(
       delay(1000),
       tap(candidates => {
@@ -72,6 +72,45 @@ export class CandidatesService {
       // prendre le premier élément de tableau filtré
       map(candidates => candidates.filter(candidate => candidate.id === id)[0])
     );
+  }
+  /*
+   * la méthode refuseCandidate() ne retournera pas un Observable.
+   * Appeler la méthode va simplement déclencher la suppression du candidat et le montage de state management réactif s'occupera du reste !
+   * la requête réussit, vous transférez l'Observable vers les candidates$ à l'instant t
+   */
+  refuseCandidate(candidateId: number ): void {
+    this.setLoadingStatus(true);
+    this.http.delete(`${environment.apiUrl}/candidates/${candidateId}`).pipe(
+      delay(1000),
+      switchMap(() => this.candidates$),
+      // si vous ne mettez pas le take(1), vous finirez dans un infinite loop ! Tout ce qui vient après ce switchMap ne doit être exécuté qu'une seule fois par suppression ;
+      take(1),
+      // map pour modifier le tableau, retournant un tableau qui contient tous les candidats sauf celui qui comporte l'id passé en argument;
+      map(candidates => candidates.filter(candidate => candidate.id !== candidateId)),
+      tap( candidatesFiltered => {
+        // émettre la nouvelle liste de candidats et l'état de chargement
+        // le reste de l'application n'a pas besoin de suivre l'avancée de la requête de suppression.
+        this._candidates$.next(candidatesFiltered);
+        this.setLoadingStatus(false);
+      })
+    ).subscribe(); // Les components qui sont souscrits aux Observables du service vont simplement afficher les nouvelles données qui sont émises !
+  }
+  /*
+  * la modification optimiste, d'abord mettre à jour les données de l'application avant même d'envoyer la requête au serveur
+  * transformer puis faire émettre le tableau des candidats à jour, ensuite envoyer une requête PATCH avec le candidat mis à jour
+   */
+  hireCandidate(candidateId: number): void {
+    this.candidates$.pipe(
+      take(1),
+      map(candidates =>
+        candidates.map(candidate => candidate.id === candidateId ? {...candidate, company: 'SnapFace Ltd'} : candidate)),
+      tap(updatedCandidates => this._candidates$.next(updatedCandidates)),
+      delay(1000),
+      switchMap(updatedCandidates =>
+        this.http.patch(`${environment.apiUrl}/candidates/${candidateId}`,
+          updatedCandidates.find(candidate => candidate.id === candidateId))
+      )
+    ).subscribe();
   }
 
 }
