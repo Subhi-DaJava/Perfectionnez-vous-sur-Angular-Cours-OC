@@ -1,5 +1,6 @@
 # AwesomeComponents
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.3.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.3. 
+### [`Firebase hosting`](https://angular-web-advanced.web.app) (Complex Form & Reactive State work only, no data!)
 
 ## Run Application 
 This project has been developped from the course [Perfectionnez-vous sur Angular](https://openclassrooms.com/fr/courses/7471281-perfectionnez-vous-sur-angular) by `Will Alexander`
